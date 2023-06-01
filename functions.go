@@ -59,11 +59,18 @@ func GetMessages(email string) []Message {
 }
 
 func messageHelper(message string, attachments []interface{}) string{
-	numAttachments := len(attachments)
-	if numAttachments == 1 {
-		message += "\nThere is 1 attachment"
-	} else if numAttachments > 0 {
-		message += fmt.Sprintf("\nThere are %d attachments", numAttachments)
+	if len(attachments) == 1 {
+		message += "\nAttachment info:\n"
+	} else {
+		return message + "\n"
+	}
+	for _, attachment := range attachments {
+		if attachmentMap, ok := attachment.(map[string]interface{}); ok {
+			for key, value := range attachmentMap {
+				message += fmt.Sprintf("%s: %v, ", key, value)
+			}
+		}
+		message += "\n"
 	}
 	return message
 }
@@ -101,17 +108,10 @@ func ReadLatestMessage(email string) string{
 	return message
 }
 
-/*
-Crate a function called GetAttachments
-Access it using the link 
-https://www.1secmail.com/api/v1/?action=download&login=demo&domain=1secmail.com&id=639&file=iometer.pdf
-*/
-
 func ReadMessageById(email string, id int) string{
 	login, domain := Credentials(email)
 
 	urlRead := fmt.Sprintf("https://www.1secmail.com/api/v1/?action=readMessage&login=%s&domain=%s&id=%d", login, domain, id)
-
 	response, err := http.Get(urlRead)
 	if err != nil {
 		return err.Error()
@@ -135,19 +135,33 @@ func ReadMessageById(email string, id int) string{
 
 func readInbox(email string) string{
 	var str string
+
 	jsonData := GetMessages(email)
 	if len(jsonData) == 0{
         return "No messages found"
 	}
+
 	for _, value := range jsonData {
 		id := value.ID
 		date := value.Date
 		message := ReadMessageById(email, id)
 		str += fmt.Sprintf("Message sent at %s: %s\n", date, message)
 	}
+
 	if len(str) == 0 {
 		return "No messages Received"
 	}
+
 	str += "End of Messages"
 	return str
+}
+
+/*
+Crate a function called GetAttachments
+Access it using the link 
+https://www.1secmail.com/api/v1/?action=download&login=demo&domain=1secmail.com&id=639&file=iometer.pdf
+*/
+
+func GetAttachments() {
+
 }

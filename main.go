@@ -3,6 +3,6 @@ package main
 import "fmt"
 
 func main() {
-    e := "ek1q2q6os@kzccv.com"
+    e := "mluynqk4y3t@qiott.com"
     fmt.Print(readInbox(e))
 }
